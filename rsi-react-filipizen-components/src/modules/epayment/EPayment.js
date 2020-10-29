@@ -44,12 +44,12 @@ const EPayment = (props) => {
       b.paidbyaddress = payee.paidbyaddress;
       b.email = contact.email;
       b.mobileno = contact.mobileno;
-      let svc = await Service.lookupAsync(`${partner.id}:EPaymentService`);
-      let po = await svc.createPaymentOrder(b);
+      let svc = Service.lookupAsync(`${partner.id}:EPaymentService`, "epayment");
+      let po = await svc.invoke("createPaymentOrder", b);
 
-      svc = await Service.lookupAsync("CloudPaymentService", "epayment");
-      po = await svc.getPaymentOrder({ objid: po.objid });
-      const payOptions = await svc.getPaymentPartnerOptions({partnerid: po.orgcode});
+      const pmtSvc = Service.lookupAsync("CloudPaymentService", "epayment");
+      po = await pmtSvc.invoke("getPaymentOrder", { objid: po.objid });
+      const payOptions = await pmtSvc.invoke("getPaymentPartnerOptions", {partnerid: po.orgcode});
       return { po, payOptions, partner };
     }
 

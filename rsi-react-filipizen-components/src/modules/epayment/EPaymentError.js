@@ -17,9 +17,9 @@ const EPaymentError = ({partner, history, location}) => {
 
   const onClose = () => {
     if (partner && partner.name) {
-      props.history.replace(`/partner/${partner.name}/services`, {partner});
+      history.replace(`/partner/${partner.name}/services`, {partner});
     } else {
-      props.history.replace("/partners");
+      history.replace("/partners");
     }
   };
 

@@ -28,8 +28,8 @@ const VerifyEmailCode = ({
   const [isResendCode, setIsResendCode] = useState(false);
 
   const verifyEmail = async () => {
-    const emailSvc = await Service.lookupAsync(`${partner.id}:VerifyEmailService`);
-    return emailSvc.verifyEmail({ email });
+    const emailSvc = Service.lookupAsync(`${partner.id}:VerifyEmailService`, "epayment");
+    return emailSvc.invoke("verifyEmail", { email });
   };
 
   const resendCode = () => {

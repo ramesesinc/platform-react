@@ -33,8 +33,8 @@ const EmailVerification = (props) => {
   const { partner, onVerify, onCancel } = props;
 
   const verifyEmail = async () => {
-    const emailSvc = await Service.lookupAsync(`${partner.id}:VerifyEmailService`);
-    return emailSvc.verifyEmail({ email: contact.email, mobileno: contact.mobileno });
+    const emailSvc = Service.lookupAsync(`${partner.id}:VerifyEmailService`, "epayment");
+    return emailSvc.invoke("verifyEmail", { email: contact.email, mobileno: contact.mobileno });
   };
 
   const submitInfo = () => {

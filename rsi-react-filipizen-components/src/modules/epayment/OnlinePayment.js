@@ -40,7 +40,7 @@ const OnlinePayment = ({po, error: externalError, payOptions, partner}) => {
       setError(null)
       setProcessingPayment(true)
       const svc = Service.lookup("CloudPaymentService", "epayment")
-      svc.getPayPartner({objid: po.objid, payoption: option.objid}, (err, paypartner) => {
+      svc.invoke("getPayPartner", {objid: po.objid, payoption: option.objid}, (err, paypartner) => {
         if (err) {
           if (/syntax/ig.test(err)) {
             setError("Could not contact payment partner. Please try again.");
@@ -83,7 +83,6 @@ const OnlinePayment = ({po, error: externalError, payOptions, partner}) => {
       <Spacer />
       <Panel center>
           <Panel style={styles.poContainer}>
-            <Error msg={error || externalError} />
             <Panel center>
               <Title color="green">Your Order</Title>
             </Panel>
@@ -124,8 +123,9 @@ const OnlinePayment = ({po, error: externalError, payOptions, partner}) => {
             />
             <Spacer height={10} />
           </Panel>
-          {!loading &&
+          {!loading && agreed &&
             <React.Fragment>
+              <Error msg={error || externalError} />
               <Spacer />
               <Label>Click to choose Type of Payment:</Label>
               <Group row>

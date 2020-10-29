@@ -1,53 +1,10 @@
 import io from "socket.io-client";
-import syncRequest from "sync-request";
 
 const CHANNEL = "/gdx";
-
-const encodeQueryParams = (params) => {
-  const queryStrings = [];
-  Object.keys(params).forEach((key) => {
-    if (params[key]) {
-      queryStrings.push(`${key}=${encodeURIComponent(params[key])}`);
-    }
-  });
-  return queryStrings.join("&");
-};
 
 const isRemote = (serviceName) => {
   return serviceName.indexOf(":") > 0;
 };
-
-const int2String = (array) => {
-  let result = "";
-  array.forEach((x) => {
-    x.forEach((y) => {
-      result += String.fromCharCode(y);
-    });
-  });
-  return result;
-};
-
-const readAllChunks = async (readableStream) => {
-  const reader = readableStream.getReader();
-  const chunks = [];
-
-  const chunkReader = async () => {
-    return reader.read().then(({ value, done }) => {
-      if (done) {
-        return int2String(chunks);
-      }
-      chunks.push(value);
-      return chunkReader();
-    });
-  };
-
-  return chunkReader();
-};
-
-const toFunc = (strFunc) => {
-  return eval("(" + strFunc + ")");
-};
-
 
 /*========================================================
 *
@@ -55,53 +12,21 @@ const toFunc = (strFunc) => {
 *
 ========================================================*/
 const findLocalService = ({ serviceName, connection, module, debug }) => {
-  const queryStrings = encodeQueryParams({
-    serviceName,
-    connection,
-    module
-  });
-
-  const res = syncRequest("GET", `/filipizen/service/metainfo?${queryStrings}`);
-  if (res.statusCode !== 200) {
-    throw res.getBody();
-  }
-
-  const Func = toFunc(res.body);
-  return new Func(LocalProxy(serviceName, connection, module));
+  return LocalProxy(serviceName, connection, module);
 };
 
-const findRemoteService = (name) => {
+const findRemoteService = (name, connection, module) => {
   const idx = name.indexOf(":");
   const channel = name.substring(0, idx);
   const serviceName = name.substring(idx + 1);
-
-  const res = syncRequest("GET", `/service/${serviceName}`);
-  if (res.statusCode !== 200) {
-    throw res.getBody();
-  }
-
-  const jsonStr = res.getBody();
-  const serviceInfo = JSON.parse(jsonStr);
-
-  const service = {
-    name: serviceName,
-    proxy: RemoteProxy(serviceName, channel)
-  };
-
-  serviceInfo.methods.forEach((method) => {
-    service[method.name] = async function (arg, handler) {
-      return await service.proxy.invoke(method.name, arg, handler);
-    };
-  });
-
-  return service;
+  return RemoteProxy(serviceName, channel, connection, module);
 };
 
 const LocalProxy = (name, connection, module) => {
   const invoke = (action, args, handler, ...rest) => {
     const data = {
-      service: { connection, name, action },
-      args
+      service: { module, connection, name, action },
+      args: args ? [args] : null
     };
 
     const urlaction = "/filipizen/service/invoke";
@@ -136,7 +61,7 @@ const LocalProxy = (name, connection, module) => {
   return { invoke };
 };
 
-const RemoteProxy = (name, channel) => {
+const RemoteProxy = (name, channel, connection, module) => {
   const socket = io(CHANNEL);
   socket.connect();
 
@@ -146,6 +71,8 @@ const RemoteProxy = (name, channel) => {
         service: name,
         method: method,
         channel: channel,
+        connection: connection,
+        module: module,
         args: args
       };
       socket.emit("invoke", params, (res) => {
@@ -170,61 +97,13 @@ const RemoteProxy = (name, channel) => {
 };
 
 
+
 /*========================================================
 *
 * ASYNC CALL SUPPORT
 *
 ========================================================*/
-const findAsyncRemoteService = async (name) => {
-  const idx = name.indexOf(":");
-  const channel = name.substring(0, idx);
-  const serviceName = name.substring(idx + 1);
-
-  const res = await fetch(`/service/${serviceName}`);
-  if (res.status !== 200) {
-    throw res.statusText;
-  }
-
-  const jsonStr = await readAllChunks(res.body);
-  const serviceInfo = JSON.parse(jsonStr);
-
-  const service = {
-    name: serviceName,
-    proxy: AsyncRemoteProxy(serviceName, channel)
-  };
-
-  serviceInfo.methods.forEach((method) => {
-    service[method.name] = async function (arg, handler) {
-      return await service.proxy.invoke(method.name, arg, handler);
-    };
-  });
-
-  return service;
-};
-
-const findAsyncLocalService = async ({
-  serviceName,
-  connection,
-  module,
-  debug
-}) => {
-  const queryStrings = encodeQueryParams({
-    serviceName,
-    connection,
-    module
-  });
-
-  const res = await fetch(`/filipizen/service/metainfo?${queryStrings}`);
-  if (res.status !== 200) {
-    throw res.statusText;
-  }
-
-  const funcStr = await readAllChunks(res.body);
-  const Func = toFunc(funcStr);
-  return new Func(AsyncLocalProxy(serviceName, connection, module));
-};
-
-const AsyncRemoteProxy = (name, channel) => {
+const AsyncRemoteProxy = (name, channel, connection, module) => {
   const socket = io(CHANNEL);
   socket.connect();
 
@@ -233,16 +112,24 @@ const AsyncRemoteProxy = (name, channel) => {
       const params = {
         service: name,
         method: method,
+        connection: connection,
+        module: module,
         channel: channel,
         args: args
       };
+      console.log(
+        `AsyncRemoteProxy [invoke] ${params.service}.${params.method} channel: ${params.channel} connection: ${connection} module: ${module}`
+      );
       socket.emit("invoke", params, (res) => {
-        console.log(
-          `AsyncRemoteProxy [status] invoking ${params.service}.${params.method} channel: ${params.channel}`
-        );
         if (res.status === "OK") {
+          if (handler) {
+            handler(false, res.data);
+          }
           resolve(res.data);
         } else {
+          if (handler) {
+            handler(res.msg);
+          }
           reject(res.msg);
         }
       });
@@ -252,14 +139,23 @@ const AsyncRemoteProxy = (name, channel) => {
   return { invoke };
 };
 
+const findAsyncRemoteService = (name, connection, module) => {
+  const idx = name.indexOf(":");
+  const channel = name.substring(0, idx);
+  const serviceName = name.substring(idx + 1);
+  return AsyncRemoteProxy(serviceName, channel, connection, module);
+};
+
+
 const AsyncLocalProxy = (name, connection, module) => {
-  const invoke = async (action, args, handler, ...rest) => {
+  const invoke = async (action, args,) => {
     const data = {
-      service: { connection, name, action },
-      args
+      service: { module, connection, name, action },
+      args: args ? [args] : null,
     };
 
     const urlaction = "/filipizen/service/invoke";
+
     const res = await fetch(urlaction, {
       method: "POST",
       cache: "no-cache",
@@ -279,55 +175,63 @@ const AsyncLocalProxy = (name, connection, module) => {
   return { invoke };
 };
 
+const findAsyncLocalService = ({
+  serviceName,
+  connection,
+  module
+}) => {
+  return AsyncLocalProxy(serviceName, connection, module);
+};
+
 const serviceCache = {};
 
-const Service = {
-  lookup: (
-    serviceName,
-    connection = "default",
-    module,
-    options = { debug: false }
-  ) => {
-    if (serviceCache[serviceName] == null) {
-      let svc;
-      if (isRemote(serviceName)) {
-        svc = findRemoteService(serviceName);
-      } else {
-        svc = findLocalService({
-          serviceName,
-          connection,
-          module,
-          ...options
-        });
-      }
-      serviceCache[serviceName] = svc;
-    }
-    return serviceCache[serviceName];
-  },
+const Service = {}
 
-  lookupAsync: (
-    serviceName,
-    connection = "default",
-    module,
-    options = { debug: false }
-  ) => {
-    const serviceKeyName = `Async${serviceName}`;
-    if (serviceCache[serviceKeyName] == null) {
-      let svc;
-      if (isRemote(serviceName)) {
-        svc = findAsyncRemoteService(serviceName);
-      } else {
-        svc = findAsyncLocalService({
-          serviceName,
-          connection,
-          module,
-          ...options
-        });
-      }
-      serviceCache[serviceKeyName] = svc;
+Service.lookup = function(
+  serviceName,
+  connection = "default",
+  module,
+  options = { debug: false }
+) {
+  if (serviceCache[serviceName] == null) {
+    let svc;
+    if (isRemote(serviceName)) {
+      svc = findRemoteService(serviceName, connection, module);
+    } else {
+      svc = findLocalService({
+        serviceName,
+        connection,
+        module,
+        ...options
+      });
     }
-    return serviceCache[serviceKeyName];
+    serviceCache[serviceName] = svc;
   }
+  return serviceCache[serviceName];
+};
+
+Service.lookupAsync = function(
+  serviceName,
+  connection = "default",
+  module,
+  options = { debug: false }
+) {
+  const serviceKeyName = `Async${serviceName}`;
+  if (serviceCache[serviceKeyName] == null) {
+    let svc;
+    if (isRemote(serviceName)) {
+      svc = findAsyncRemoteService(serviceName, connection, module);
+    } else {
+      svc = findAsyncLocalService({
+        serviceName,
+        connection,
+        module,
+        ...options
+      });
+    }
+    serviceCache[serviceKeyName] = svc;
+  }
+  return serviceCache[serviceKeyName];
 };
 
 export const getNotification = () => {

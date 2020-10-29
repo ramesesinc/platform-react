@@ -8,7 +8,7 @@ const useBarangayList = (initialOrgCode) => {
   useEffect(() => {
     if (orgcode) {
       const bsvc = Service.lookup("CloudPartnerService", "partner");
-      bsvc.getBarangayList({ orgcode }, (err, brgyList) => {
+      bsvc.invoke("getBarangayList", { orgcode }, (err, brgyList) => {
         if (err) throw err;
         setBarangays(brgyList);
       });

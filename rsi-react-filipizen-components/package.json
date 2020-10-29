@@ -1,6 +1,6 @@
 {
   "name": "rsi-react-filipizen-components",
-  "version": "0.1.17",
+  "version": "0.2.0",
   "description": "Filipizen React Web Components",
   "author": "ramesesinc",
   "license": "MIT",
@@ -27,7 +27,7 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-router-dom": "^5.2.0",
-    "rsi-react-web-components": "^0.1.0",
+    "rsi-react-web-components": "^0.2.0",
     "socket.io-client": "^2.3.0",
     "use-immer": "^0.4.1"
   },
@@ -52,7 +52,7 @@
     "react-dom": "^16.13.1",
     "react-router-dom": "^5.2.0",
     "react-scripts": "^3.4.1",
-    "rsi-react-web-components": "^0.1.0",
+    "rsi-react-web-components": "^0.2.0",
     "socket.io-client": "^2.3.0",
     "use-immer": "^0.4.1"
   },
