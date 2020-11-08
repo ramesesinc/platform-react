@@ -1,5 +1,6 @@
 .UploadButton {
   display: inline-block;
+  margin: 10px 0px;
 }
 
 .UploadButton__menu {
@@ -21,7 +22,7 @@
 }
 
 .UploadButton__img {
-  width: 300px;
+  width: 100%;
   margin: 5px 0px;
   object-fit: contain;
   border: 1px solid #acacac;

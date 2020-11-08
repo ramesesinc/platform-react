@@ -8,3 +8,4 @@ export {default as CheckIcon} from '@material-ui/icons/Check'
 export {default as PageviewIcon} from '@material-ui/icons/Pageview';
 export {default as CloudDownloadIcon} from '@material-ui/icons/CloudDownload';
 export {default as ErrorOutlineIcon} from '@material-ui/icons/ErrorOutline';
+export {default as BackupIcon} from '@material-ui/icons/Backup';

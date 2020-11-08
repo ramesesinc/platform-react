@@ -1,25 +1,23 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import Button from "@material-ui/core/Button"
 import Error from "./Error";
 import axios from "axios";
 import styles from "./UploadButton.css";
 
 const UploadButton = ({
-  onUploadFile,
-  caption,
+  onUpload,
+  fileId,
+  caption="Upload",
   color="secondary",
   visibleWhen = true,
   multiple = false,
-  uploadedFile={},
   url="/filipizen/upload",
-  data
 }) => {
   if (!visibleWhen) return null;
 
   const [error, setError] = useState();
   const [file, setFile] = useState("");
   const [progress, setProgess] = useState(0);
-  const inputEl = useRef();
 
   const handleFileChange = (e) => {
     setProgess(0);
@@ -40,11 +38,11 @@ const UploadButton = ({
         }
       })
       .then((res) => {
-        const file = {
+        const attachment = {
           name: res.data.name,
-          path: res.data.path
+          path: res.data.path,
         }
-        onUploadFile(file, data)
+        onUpload(attachment);
       })
       .catch((err) => setError(err));
   };
@@ -54,13 +52,12 @@ const UploadButton = ({
       <div className={styles.UploadButton__menu}>
         <input
           className={styles.UploadButton__input}
-          ref={inputEl}
-          id="contained-button-file"
+          id={fileId}
           type="file"
           onChange={handleFileChange}
           multiple={multiple}
         />
-        <label htmlFor="contained-button-file">
+        <label htmlFor={fileId}>
           <Button variant="outlined" component="span" color={color}>
             {caption || "Upload"}
           </Button>
@@ -75,11 +72,6 @@ const UploadButton = ({
         }
         <Error msg={error} />
       </div>
-        <img
-          className={styles.UploadButton__img}
-          src={uploadedFile.path}
-          alt={uploadedFile.name}
-        />
     </div>
   );
 };
