@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import store from "store";
 import {
   Error,
   Panel,
@@ -50,7 +49,6 @@ const OnlinePayment = ({po, error: externalError, payOptions, partner}) => {
           setProcessingPayment(false);
         } else {
           setPaypartner(paypartner);
-          store.set("partner", partner);
         }
       })
     }

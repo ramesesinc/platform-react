@@ -5,7 +5,6 @@ import { useContext, getFieldProps } from "./DataContext";
 
 function NumberFormatCustom(props) {
   const { inputRef, onChange, thousandSeparator=true, ...other } = props;
-
   return (
     <NumberFormat
       {...other}
@@ -25,7 +24,28 @@ function NumberFormatCustom(props) {
   );
 }
 
-const Integer = ({label, caption, size="small", ...rest}) => {
+function NumberFormatCustom2(props) {
+  const { inputRef, onChange, thousandSeparator=false, ...other } = props;
+  return (
+    <NumberFormat
+      {...other}
+      getInputRef={inputRef}
+      onValueChange={(values) => {
+        onChange({
+          target: {
+            name: props.name,
+            value: values.value,
+          },
+        });
+      }}
+      thousandSeparator={thousandSeparator}
+      isNumericString
+      decimalScale={0}
+    />
+  );
+}
+
+const Integer = ({label, caption, thousandSeparator=true, size="small", ...rest}) => {
   const ctx = useContext();
   const fieldProps = getFieldProps(ctx, rest);
 
@@ -37,7 +57,7 @@ const Integer = ({label, caption, size="small", ...rest}) => {
       {...rest}
       {...fieldProps}
       InputProps={{
-        inputComponent: NumberFormatCustom,
+        inputComponent: thousandSeparator ? NumberFormatCustom : NumberFormatCustom2,
       }}
     />
   )

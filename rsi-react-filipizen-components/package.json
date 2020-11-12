@@ -60,7 +60,6 @@
     "dist"
   ],
   "dependencies": {
-    "shortid": "^2.2.15",
-    "store": "^2.0.12"
+    "shortid": "^2.2.15"
   }
 }
