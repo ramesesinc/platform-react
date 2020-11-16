@@ -30,10 +30,10 @@ const EmailVerification = (props) => {
   const [verifying, setVerifying] = useState(false);
   const [isResendCode, setIsResendCode] = useState(false);
 
-  const { partner, onVerify, onCancel } = props;
+  const { partner, onVerify, onCancel, connection="epayment" } = props;
 
   const verifyEmail = async () => {
-    const emailSvc = Service.lookupAsync(`${partner.id}:VerifyEmailService`, "epayment");
+    const emailSvc = Service.lookupAsync(`${partner.id}:VerifyEmailService`, connection);
     return emailSvc.invoke("verifyEmail", { email: contact.email, mobileno: contact.mobileno });
   };
 
@@ -101,7 +101,7 @@ const EmailVerification = (props) => {
             <Text label="Address" name="address" />
           </React.Fragment>
         )}
-        <Email name="email" required error={contactError.email} helperText={contactError.email} />
+      <Email name="email" required error={contactError.email} helperText={contactError.email} autoFocus={!props.showName} />
         <Mobileno name="mobileno" />
         <ActionBar disabled={verifying}>
           <BackLink action={goBack} />

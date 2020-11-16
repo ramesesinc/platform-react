@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   Panel,
@@ -10,12 +10,20 @@ import {
   FormPanel,
   Text,
   ActionBar,
-  currencyFormat
+  currencyFormat,
+  Error,
+  MsgBox
 } from "rsi-react-web-components";
 
-const CheckoutOrder = ({ onCancel, onSubmit, bill, loading }) => {
+const CheckoutOrder = ({ onCancel, onSubmit, bill, loading, error: paymentError }) => {
   const [payee, setPayee] = useState({});
   const [errors, setErrors] = useState({});
+  const [showMsg, setShowMsg] = useState(false);
+
+
+  useEffect(() => {
+    setShowMsg(paymentError !== null && paymentError !== undefined);
+  }, [paymentError])
 
   const confirmOrder = () => {
     const errs = {}
@@ -58,6 +66,11 @@ const CheckoutOrder = ({ onCancel, onSubmit, bill, loading }) => {
           </div>
         </Panel>
         <Spacer />
+        <MsgBox
+          open={showMsg}
+          title="Error"
+          onAccept={() => setShowMsg(false)}
+          msg={`An error was encountered when processing your order. Please try again later or contact LGU for assistance.`} />
         <ActionBar>
           <Button variant="text" caption="Back" action={onCancel} />
           <Button caption="Continue" action={confirmOrder} disableWhen={loading} loading={loading}/>

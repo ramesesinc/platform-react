@@ -90,6 +90,7 @@ const Lookup = ({
           variant="outlined"
           size="small"
           helperText={searchFieldTitle}
+          autoFocus={true}
           {...rest}
           InputProps={{
             readOnly: readOnly || !editable,
