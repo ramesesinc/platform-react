@@ -1,17 +1,11 @@
 import React, { useState } from "react";
 import {
-  FormPanel,
   Panel,
   Text,
-  Mobileno,
-  Email,
   ActionBar,
   Button,
   Error,
-  Spacer,
-  Subtitle,
-  BackLink,
-  Title,
+  Service,
   MsgBox
 } from "rsi-react-web-components";
 
@@ -21,14 +15,16 @@ const VerifyEmailCode = ({
   hiddenCode,
   email,
   onCancel,
-  onVerified
+  onVerified,
+  onResendCode=()=>{},
+  connection="epayment"
 }) => {
   const [keycode, setKeycode] = useState();
   const [error, setError] = useState();
   const [isResendCode, setIsResendCode] = useState(false);
 
   const verifyEmail = async () => {
-    const emailSvc = Service.lookupAsync(`${partner.id}:VerifyEmailService`, "epayment");
+    const emailSvc = Service.lookupAsync(`${partner.id}:VerifyEmailService`, connection);
     return emailSvc.invoke("verifyEmail", { email });
   };
 
@@ -36,7 +32,7 @@ const VerifyEmailCode = ({
     setError(null);
     verifyEmail()
       .then((data) => {
-        setHiddenCode(data.key);
+        onResendCode(data.key);
         setIsResendCode(false);
       })
       .catch((err) => {
@@ -46,13 +42,6 @@ const VerifyEmailCode = ({
   }
 
   const verifyCode = () => {
-    //TODO: remove comment and test code
-    // if (hiddenCode !== keycode) {
-    //   setError("Code is incorrect");
-    // } else {
-    //   onVerified();
-    // }
-
     onVerified();
   };
 

@@ -1,5 +1,5 @@
 import moment from "moment";
-import _ from "lodash";
+import padStart from "lodash/padStart";
 
 export const isVisible = (visibleWhen) => {
   if (visibleWhen == undefined) return true;
@@ -66,7 +66,7 @@ export const getCurrentYear = () => {
 
 
 export const padLeft = (str, len, padChar="0") => {
-  return _.padStart(str, len, padChar);
+  return padStart(str, len, padChar);
 }
 
 export const dateAdd = (duration, key, dt) => {
