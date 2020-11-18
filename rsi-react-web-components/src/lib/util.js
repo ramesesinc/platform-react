@@ -92,3 +92,8 @@ export const isDateAfter = (dt, refDate) => {
 export const randomInt = (len = 6) => {
   return Math.floor(Math.random() * len) + 1
 }
+
+
+export const hasErrors = (errors) => {
+  return Object.keys(errors).length > 0
+}

@@ -8,7 +8,6 @@ import Dialog from "@material-ui/core/Dialog";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import _object from "lodash/object";
-import produce from "immer";
 
 import ActionBar from "./ActionBar";
 import Button from "./Button";
@@ -20,7 +19,8 @@ const useStyles = makeStyles((theme) => ({
     flexWrap: 'wrap',
   },
   margin: {
-    margin: theme.spacing(1),
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(1),
   },
   withoutLabel: {
     marginTop: theme.spacing(3),

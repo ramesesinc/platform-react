@@ -8,8 +8,9 @@ const CustomDate = ({
   visibleWhen = true,
   caption,
   label,
-  editable = true,
-  readOnly = false,
+  editable=true,
+  readOnly=false,
+  disabled=false,
   autoOk=true,
   helperText="mm/dd/yyy",
   variant="standard",
@@ -66,7 +67,7 @@ const CustomDate = ({
         {...restFieldProps}
         value={localValue}
         onChange={changeHandler}
-        disabled={!editable || readOnly}
+        disabled={!editable || readOnly || disabled}
       />
     </MuiPickersUtilsProvider>
   );
