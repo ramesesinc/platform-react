@@ -70,7 +70,6 @@
     "react-text-mask": "^5.4.3",
     "shortid": "^2.2.15",
     "socket.io-client": "^2.3.0",
-    "sync-request": "^6.1.0",
     "use-immer": "^0.4.1"
   }
 }
