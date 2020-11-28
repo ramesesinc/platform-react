@@ -1,6 +1,6 @@
 {
   "name": "rsi-react-web-components",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "description": "Rameses React Web Components",
   "author": "ramesesinc",
   "license": "MIT",
@@ -62,9 +62,9 @@
     "@material-ui/styles": "^4.10.0",
     "axios": "^0.20.0",
     "date-fns": "^2.15.0",
+    "dayjs": "^1.9.6",
     "immer": "^7.0.7",
     "lodash": "^4.17.15",
-    "moment": "^2.27.0",
     "react-modal": "^3.11.2",
     "react-number-format": "^4.4.1",
     "react-text-mask": "^5.4.3",
