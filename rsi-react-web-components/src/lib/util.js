@@ -1,4 +1,4 @@
-import moment from "moment";
+import dayjs from "dayjs";
 import padStart from "lodash/padStart";
 
 export const isVisible = (visibleWhen) => {
@@ -20,7 +20,7 @@ export const isDisabled = (disableWhen) => {
   return disableWhen;
 };
 
-export function formatNumber(num=0) {
+export function formatNumber(num = 0) {
   return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
 }
 
@@ -40,60 +40,67 @@ export const groupBy = (list, key) => {
 export const getUrlParameter = (location, key) => {
   const params = new URLSearchParams(location.search);
   return params.get(key);
-}
+};
 
+export const getDuration = (from, to, unit = "d") => {
+  if (!from) return "";
+  const start = from ? dayjs(from) : dayjs(new Date());
+  const end = to ? dayjs(to) : dayjs(new Date());
+  return end.diff(start, unit);
+};
 
-export const getDuration = (from, to) => {
-  if (!from ) return "";
-  const start = from ? moment(from) : monent(new Date());
-  const end = to ? moment(to) : moment(new Date());
-  return end.to(start);
-}
-
-export const integerRangeToArray = (from, to ) => {
+export const integerRangeToArray = (from, to) => {
   const range = [];
   for (let i = from; i <= to; i++) {
     range.push(i);
   }
   return range;
-}
-
+};
 
 export const getCurrentYear = () => {
   const currDate = new Date();
   return currDate.getFullYear();
-}
+};
 
-
-export const padLeft = (str, len, padChar="0") => {
+export const padLeft = (str, len, padChar = "0") => {
   return padStart(str, len, padChar);
-}
+};
 
-export const dateAdd = (duration, key, dt) => {
-  moment().add(duration, key);
-  return moment.toISOString();
-}
+export const dateAdd = (duration, unit = "d") => {
+  dayjs().add(duration, unit);
+  return dayjs.toISOString();
+};
 
-export const formatDate = (dt, pattern="MMMM D, YYYY") => {
-  return moment(dt).format(pattern);
-}
+export const formatDate = (dt, pattern = "MMMM D, YYYY") => {
+  return dayjs(dt).format(pattern);
+};
 
 export const isDateBefore = (dt, refDate) => {
-  return moment(dt).isBefore(refDate);
-}
+  return dayjs(dt).isBefore(refDate);
+};
 
 export const isDateAfter = (dt, refDate) => {
   if (refDate) {
-    return moment(dt).isAfter(refDate);
+    return dayjs(dt).isAfter(refDate);
   }
-  return moment(moment(dt).add(1, "d")).isAfter();
-}
+  return dayjs(dayjs(dt).add(1, "d")).isAfter();
+};
 
 export const randomInt = (len = 6) => {
-  return Math.floor(Math.random() * len) + 1
-}
-
+  return Math.floor(Math.random() * len) + 1;
+};
 
 export const hasErrors = (errors) => {
-  return Object.keys(errors).length > 0
+  return Object.keys(errors).length > 0;
+};
+
+
+export const makeId = (length = 10) => {
+  let result           = '';
+  const characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const charactersLength = characters.length;
+  for ( let i = 0; i < length; i++ ) {
+     result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
 }

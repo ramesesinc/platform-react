@@ -9,10 +9,10 @@ import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
 import Paper from '@material-ui/core/Paper'
 import TablePagination from '@material-ui/core/TablePagination'
-import shortid from 'shortid'
 import produce from 'immer'
 import _object from "lodash/object";
 import { currencyFormat, formatNumber } from "../lib/util";
+import { makeId } from "../lib/util";
 
 const formatters = {
   "currency": currencyFormat,
@@ -39,7 +39,7 @@ const getTableHeaders = (props, options) => {
   const headers = React.Children.map(props.children, (child) => {
     const { caption, expr, ...rest } = child.props
     return (
-      <TableCell key={shortid.generate()} className={classes.head} {...rest}>
+      <TableCell key={makeId()} className={classes.head} {...rest}>
         {caption}
       </TableCell>
     )
@@ -47,14 +47,14 @@ const getTableHeaders = (props, options) => {
 
   if (options.singleSelect) {
     headers.unshift(
-      <TableCell key={shortid.generate()} padding='checkbox'>
+      <TableCell key={makeId()} padding='checkbox'>
         <span>{" "}</span>
       </TableCell>
     )
   } else if (options.multiSelect) {
     const { numSelected, rowCount, onSelectAllClick } = options
     headers.unshift(
-      <TableCell key={shortid.generate()} padding='checkbox'>
+      <TableCell key={makeId()} padding='checkbox'>
         <Checkbox
           indeterminate={numSelected > 0 && numSelected < rowCount}
           checked={rowCount > 0 && numSelected === rowCount}
@@ -113,7 +113,7 @@ const getTableBody = (props, selectedItems, options) => {
       const cellValue = getCellValue({item, expr, format, children});
       const firstCellProps = idx === 0 ? { component: 'th', scope: 'row' } : {}
       return (
-        <TableCell key={shortid.generate()} {...firstCellProps} {...rest}>
+        <TableCell key={makeId()} {...firstCellProps} {...rest}>
           {cellValue}
         </TableCell>
       )
@@ -122,7 +122,7 @@ const getTableBody = (props, selectedItems, options) => {
       const { keyId } = props;
       const isItemSelected = selectedItems.findIndex(o => o[keyId] === item[keyId]) >= 0
       cells.unshift(
-        <TableCell key={shortid.generate()} padding='checkbox'>
+        <TableCell key={makeId()} padding='checkbox'>
           <Checkbox checked={isItemSelected} />
         </TableCell>
       )
@@ -132,14 +132,14 @@ const getTableBody = (props, selectedItems, options) => {
           onClick={(event) => options.onSelectItem(event, item)}
           role='checkbox'
           tabIndex={-1}
-          key={shortid.generate()}
+          key={makeId()}
           selected={isItemSelected}
         >
           {cells}
         </TableRow>
       )
     } else {
-      body.push(<TableRow key={shortid.generate()}>{cells}</TableRow>)
+      body.push(<TableRow key={makeId()}>{cells}</TableRow>)
     }
   })
   return body

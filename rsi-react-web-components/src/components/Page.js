@@ -25,7 +25,9 @@ const Page = (props) => {
     <div className={styles.template}>
       <div className={styles.content}>
         <div className={styles.panel}>
-          <aside className={`${styles.aside} ${styles.aside_left}`}>{left}</aside>
+          <aside className={`${styles.aside} ${styles.aside_left}`}>
+            <div style={{position: "fixed"}}>{left}</div>
+          </aside>
           <div className={styles.main}>
           {center}
           </div>

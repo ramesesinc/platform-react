@@ -66,8 +66,10 @@ const Lookup = ({
   }
 
   const onAccept = () => {
-    setOpen(false);
-    onSelect();
+    const pass = onSelect();
+    if (pass) {
+      setOpen(false);
+    }
   }
 
   const handleChange = (evt) => {

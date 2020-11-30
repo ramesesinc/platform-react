@@ -4,8 +4,8 @@ import FormControl from "@material-ui/core/FormControl";
 import MuiSelect from "@material-ui/core/Select";
 import InputLabel from "@material-ui/core/InputLabel";
 import MenuItem from "@material-ui/core/MenuItem";
-import shortid from "shortid";
 import _object from "lodash/object";
+import { makeId } from "../lib/util";
 
 import { useContext, getFieldProps } from "./DataContext";
 
@@ -28,7 +28,7 @@ const getChildren = (items, expr) => {
       caption = _object.get(item, expr);
     }
     return (
-      <MenuItem key={shortid.generate()} value={item}>
+      <MenuItem key={makeId()} value={item}>
         {caption || item}
       </MenuItem>
     );

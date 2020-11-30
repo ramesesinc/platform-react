@@ -1,5 +1,5 @@
 import React from "react";
-import shortid from "shortid";
+import { makeId } from "../lib/util";
 
 const getNewChildProps = (item, child, rest) => {
   const newProps = { ...rest };
@@ -22,7 +22,7 @@ const buildChildren = (item, props) => {
       } else {
         const newProps = getNewChildProps(item, child, rest);
         const childrenList = buildChildren(item, child.props);
-        newProps.key = shortid.generate();
+        newProps.key = makeId();
         const newChild = React.cloneElement(child, newProps, childrenList);
         newChildren.push(newChild);
       }

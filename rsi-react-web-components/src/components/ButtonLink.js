@@ -1,5 +1,5 @@
 import React from "react";
-import { Button as MuiButton, CircularProgress } from "@material-ui/core";
+import { Button as MuiButton } from "@material-ui/core";
 import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme) => ({
