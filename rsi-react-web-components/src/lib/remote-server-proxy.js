@@ -90,7 +90,15 @@ const RemoteProxy = (name, channel, connection, module) => {
   };
 
   const invoke = (method, args, handler) => {
-    asyncFetch(method, args).then(data => handler(null, data)).catch(err => handler(err, null));
+    asyncFetch(method, args)
+      .then(data => handler(null, data))
+      .catch(err => {
+        if (/syntax/i.test(err)) {
+          handler("Partner is currently not avaible. Please try again later.", null);
+        } else {
+          handler(err, null);
+        }
+      });
   };
 
   return { invoke };
@@ -117,9 +125,9 @@ const AsyncRemoteProxy = (name, channel, connection, module) => {
         channel: channel,
         args: args
       };
-      console.log(
-        `AsyncRemoteProxy [invoke] ${params.service}.${params.method} channel: ${params.channel} connection: ${connection} module: ${module}`
-      );
+      // console.log(
+      //   `AsyncRemoteProxy [invoke] ${params.service}.${params.method} channel: ${params.channel} connection: ${connection} module: ${module}`
+      // );
       socket.emit("invoke", params, (res) => {
         if (res.status === "OK") {
           if (handler) {

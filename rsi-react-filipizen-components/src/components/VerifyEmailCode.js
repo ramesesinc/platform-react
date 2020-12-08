@@ -6,7 +6,8 @@ import {
   Button,
   Error,
   Service,
-  MsgBox
+  MsgBox,
+  BackLink
 } from "rsi-react-web-components";
 
 
@@ -42,12 +43,17 @@ const VerifyEmailCode = ({
   }
 
   const verifyCode = () => {
-    onVerified();
+    setError(null);
+    console.log(hiddenCode + "89");
+    if (hiddenCode !== keycode) {
+      setError("Invalid code");
+    } else {
+      onVerified();
+    }
   };
 
   return (
     <Panel>
-      <Error msg={error} />
       <MsgBox open={isResendCode}
         title="Email Verification"
         msg="Resend verification code?"
@@ -66,10 +72,13 @@ const VerifyEmailCode = ({
             maxLength={6}
             fullWidth={false}
             variant="outlined"
+            error={error}
+            helperText={error}
           />
           <Button label="Resend Code" action={()=>setIsResendCode(true)} variant="text" />
         </Panel>
         <ActionBar>
+          <BackLink caption="Cancel" action={onCancel} />
           <Button caption="Verify" action={verifyCode} />
         </ActionBar>
       </Panel>
