@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Panel,
   Combobox,
   Date,
   Text,
-  Subtitle2
+  Subtitle2,
+  isDateAfter,
+  isDateBefore
 } from "rsi-react-web-components";
 
 const idTypeList = [
@@ -19,19 +21,54 @@ const idTypeList = [
 
 const IdEntry = ({
   name,
+  dtIssued: initialDtIssued,
   defaultType,
   editable=true,
   visibleWhen=true,
   showIdTypes=true,
   disableIdNo=false,
   caption,
+  onError=()=>{},
   ...rest
 }) => {
 
   if (!visibleWhen) return null;
 
-  const [idTypes, setIdTypes] = useState(idTypeList);
-  const [idtype, setIdtype] = useState();
+  const [idTypes] = useState(idTypeList);
+  const [errors, setErrors] = useState({});
+  const [dtIssued, setDtIssued] = useState(initialDtIssued);
+
+  useEffect(() => {
+    setDtIssued(initialDtIssued);
+  }, initialDtIssued)
+
+  const validateDateIssued = (e) => {
+    setErrors({});
+    setDtIssued(null);
+    const dtIssued = e.target.value;
+    if (dtIssued) {
+      if (isDateAfter(dtIssued)) {
+        setErrors({...errors, dtissued: "Date issued should be on or before this day"});
+        onError(true, "id.dtissued");
+      } else {
+        setDtIssued(dtIssued);
+        onError(false);
+      }
+    }
+  }
+
+  const validateDateValidity = (e) => {
+    const dtValid = e.target.value;
+    if (dtValid) {
+      if (isDateBefore(dtValid, dtIssued)) {
+        setErrors({...errors, dtvalid: "Date should be after date issued"});
+        onError(true);
+      } else {
+        setErrors({...errors, dtvalid: null});
+        onError(false);
+      }
+    }
+  }
 
   return (
     <Panel>
@@ -42,12 +79,13 @@ const IdEntry = ({
           items={idTypes}
           caption="ID Type"
           expr={(item) => item.title}
+          required={true}
         />
       }
       <Text name={`${name}.idno`} required={true} caption="ID No." readOnly={disableIdNo} />
       <Text name={`${name}.placeissued`} required={true} caption="Place Issued" />
-      <Date name={`${name}.dtissued`} required={true} caption="Date Issued" helperText="mm/dd/yyyy" />
-      <Date name={`${name}.dtvalid`} required={true} caption="Validity Date" helperText="mm/dd/yyyy"  />
+      <Date name={`${name}.dtissued`} required={true} caption="Date Issued" helperText="mm/dd/yyyy" onBlur={validateDateIssued} error={errors.dtissued} helperText={errors.dtissued} disableFuture={true} />
+      <Date name={`${name}.dtvalid`} required={true} caption="Validity Date" helperText="mm/dd/yyyy" onBlur={validateDateValidity} error={errors.dtvalid} helperText={errors.dtvalid} disabled={!dtIssued} disablePast={true} />
     </Panel>
   );
 };

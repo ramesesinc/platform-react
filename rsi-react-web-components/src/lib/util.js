@@ -83,7 +83,7 @@ export const isDateAfter = (dt, refDate) => {
   if (refDate) {
     return dayjs(dt).isAfter(refDate);
   }
-  return dayjs(dayjs(dt).add(1, "d")).isAfter();
+  return dayjs(dayjs(dt)).isAfter();
 };
 
 export const randomInt = (len = 6) => {

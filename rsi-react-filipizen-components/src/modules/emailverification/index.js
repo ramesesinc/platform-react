@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   FormPanel,
   Card,
@@ -38,7 +38,7 @@ const EmailVerification = (props) => {
   };
 
   const submitInfo = () => {
-    if (contact && contact.email) {
+    if (formRef.current.reportValidity()) {
       setError(null);
       setVerifying(true);
       verifyEmail()
@@ -50,8 +50,6 @@ const EmailVerification = (props) => {
           setError(err);
           setVerifying(false);
         });
-    } else {
-      setContactError({email: "A valid email is required."});
     }
   };
 
@@ -85,6 +83,8 @@ const EmailVerification = (props) => {
     }
   };
 
+  const formRef = useRef();
+
   const title = props.module && props.module.title || props.title || null;
 
   return (
@@ -95,18 +95,20 @@ const EmailVerification = (props) => {
       <Error msg={error} />
 
       <FormPanel visibleWhen={!hiddenCode} context={contact} handler={setContact}>
-        {props.showName === true && (
-          <React.Fragment>
-            <Text label="Full Name" name="name" autoFocus={true} />
-            <Text label="Address" name="address" />
-          </React.Fragment>
-        )}
-      <Email name="email" required error={contactError.email} helperText={contactError.email} autoFocus={!props.showName} />
-        <Mobileno name="mobileno" />
-        <ActionBar disabled={verifying}>
-          <BackLink action={goBack} />
-          <Button label="Submit" action={submitInfo} loading={verifying} />
-        </ActionBar>
+        <form ref={formRef}>
+          {props.showName === true && (
+            <React.Fragment>
+              <Text label="Full Name" name="name" autoFocus={true} required={true} />
+              <Text label="Address" name="address" required={true} />
+            </React.Fragment>
+          )}
+          <Email name="email" required error={contactError.email} helperText={contactError.email} autoFocus={!props.showName} />
+          <Mobileno name="mobileno" />
+          <ActionBar disabled={verifying}>
+            <BackLink action={goBack} />
+            <Button label="Submit" action={submitInfo} loading={verifying} />
+          </ActionBar>
+        </form>
       </FormPanel>
 
       <MsgBox open={isResendCode}

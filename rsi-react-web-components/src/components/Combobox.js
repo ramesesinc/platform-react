@@ -9,19 +9,15 @@ import { useContext, getFieldProps } from "./DataContext";
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
-    // minWidth: 200,
     marginTop: 3,
-  },
-  selectEmpty: {
-    marginTop: theme.spacing(2),
   },
 }));
 
 const Combobox = ({
   editable = true,
+  required=false,
   items,
   caption,
-  label,
   expr,
   ...rest
 }) => {
@@ -31,10 +27,11 @@ const Combobox = ({
 
   return (
     <FormControl className={classes.formControl} fullWidth disabled={!editable} >
-      <InputLabel id="select-id">{caption || label || ""}</InputLabel>
+      <InputLabel required={required} id="select-id">{caption}</InputLabel>
       <Select
         labelId="select-id"
         id="select-id"
+        required={required}
         {...rest}
         {...fieldProps}
       >
