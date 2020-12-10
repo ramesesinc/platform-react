@@ -29,7 +29,6 @@ const IdEntry = ({
   disableIdNo=false,
   caption,
   onError=()=>{},
-  ...rest
 }) => {
 
   if (!visibleWhen) return null;
@@ -85,7 +84,7 @@ const IdEntry = ({
       <Text name={`${name}.idno`} required={true} caption="ID No." readOnly={disableIdNo} />
       <Text name={`${name}.placeissued`} required={true} caption="Place Issued" />
       <Date name={`${name}.dtissued`} required={true} caption="Date Issued" helperText="mm/dd/yyyy" onBlur={validateDateIssued} error={errors.dtissued} helperText={errors.dtissued} disableFuture={true} />
-      <Date name={`${name}.dtvalid`} required={true} caption="Validity Date" helperText="mm/dd/yyyy" onBlur={validateDateValidity} error={errors.dtvalid} helperText={errors.dtvalid} disabled={!dtIssued} disablePast={true} />
+      <Date name={`${name}.dtvalid`} caption="Validity Date" helperText="mm/dd/yyyy" onBlur={validateDateValidity} error={errors.dtvalid} helperText={errors.dtvalid} disabled={!dtIssued} disablePast={true} />
     </Panel>
   );
 };
