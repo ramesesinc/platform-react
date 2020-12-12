@@ -51,6 +51,8 @@ const LocalProxy = (name, connection, module) => {
           if (!Array.isArray(data) && Object.keys(data).length === 0) {
             //treat EMPTY data as null (from server)
             handler(null, null)
+          } if (!Array.isArray(data) && data.status === "ERROR") {
+            handler(data.msg, null);
           } else {
             handler(null, data)
           }
