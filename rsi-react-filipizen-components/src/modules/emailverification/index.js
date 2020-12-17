@@ -19,18 +19,28 @@ import {
 
 import { isVisible } from "rsi-react-web-components";
 
-const EmailVerification = (props) => {
-  if (!isVisible(props.visibleWhen)) return null;
+const EmailVerification = ({
+  partner,
+  onVerify,
+  onCancel,
+  connection="epayment",
+  visibleWhen=true,
+  history,
+  showName,
+  module,
+  title,
+  emailRequired,
+  contact: initialContact
+}) => {
+  if (!visibleWhen) return null;
 
   const [hiddenCode, setHiddenCode] = useState();
-  const [contact, setContact] = useState({});
+  const [contact, setContact] = useState(initialContact);
   const [contactError, setContactError] = useState({});
   const [keycode, setKeycode] = useState();
   const [error, setError] = useState();
   const [verifying, setVerifying] = useState(false);
   const [isResendCode, setIsResendCode] = useState(false);
-
-  const { partner, onVerify, onCancel, connection="epayment" } = props;
 
   const verifyEmail = async () => {
     const emailSvc = Service.lookupAsync(`${partner.id}:VerifyEmailService`, connection);
@@ -38,19 +48,23 @@ const EmailVerification = (props) => {
   };
 
   const submitInfo = () => {
-    if (formRef.current.reportValidity()) {
-      setError(null);
-      setVerifying(true);
-      verifyEmail()
-        .then((data) => {
-          setHiddenCode(data.key);
-          setVerifying(false);
-        })
-        .catch((err) => {
-          setError(err);
-          setVerifying(false);
-        });
+    if (!formRef.current.reportValidity()) return;
+    if (!contact.email && !contact.mobileno) {
+      setError("Please specify email or Mobile No.");
+      return;
     }
+
+    setError(null);
+    setVerifying(true);
+    verifyEmail()
+      .then((data) => {
+        setHiddenCode(data.key);
+        setVerifying(false);
+      })
+      .catch((err) => {
+        setError(err);
+        setVerifying(false);
+      });
   };
 
   const resendCode = () => {
@@ -78,31 +92,31 @@ const EmailVerification = (props) => {
     if (typeof onCancel === "function") {
       onCancel();
     }
-    if (props.history) {
-      props.history.goBack();
+    if (history) {
+      history.goBack();
     }
   };
 
   const formRef = useRef();
 
-  const title = props.module && props.module.title || props.title || null;
+  const moduleTitle = module && module.title || title || null;
 
   return (
     <Card>
-      {title && <Title>{title}</Title>}
+      {moduleTitle && <Title>{moduleTitle}</Title>}
       <Subtitle>Email Verification</Subtitle>
       <Spacer />
       <Error msg={error} />
 
       <FormPanel visibleWhen={!hiddenCode} context={contact} handler={setContact}>
         <form ref={formRef}>
-          {props.showName === true && (
+          {showName === true && (
             <React.Fragment>
               <Text label="Full Name" name="name" autoFocus={true} required={true} />
               <Text label="Address" name="address" required={true} />
             </React.Fragment>
           )}
-          <Email name="email" required error={contactError.email} helperText={contactError.email} autoFocus={!props.showName} />
+          <Email name="email" required={emailRequired} error={contactError.email} helperText={contactError.email} autoFocus={!showName} />
           <Mobileno name="mobileno" />
           <ActionBar disabled={verifying}>
             <BackLink action={goBack} />

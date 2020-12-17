@@ -2,11 +2,12 @@ import React, { useState, useEffect } from "react";
 import { Service } from "rsi-react-web-components";
 
 import EmailVerification from "../emailverification";
+import ContactVerification from '../emailverification/ContactVerification';
 import CheckoutOrder from "./CheckoutOrder";
 import OnlinePayment from "./OnlinePayment";
 
 const EPayment = (props) => {
-  const { module, partner, initialContact={}, initialStep=0, cancelPayment } = props;
+  const { module, partner, contact, initialStep=0, cancelPayment } = props;
 
   const goBack = () => {
     props.history.goBack();
@@ -31,12 +32,23 @@ const EPayment = (props) => {
 
   const checkoutOrder = (bill) => {
     setBill(bill);
-    moveNext();
+    if (contact.email) {
+      setStep(pages.findIndex(pg => pg.name === "checkout"));
+    } else {
+      setStep(pages.findIndex(pg => pg.name === "verification"));
+    }
   };
+
+  const gotoCheckout = () => {
+    setStep(pages.findIndex(pg => pg.name === "checkout"));
+  }
 
   const createPaymentOrder = (payee) => {
     setLoading(true);
     setError(null);
+
+    console.log("contact", contact);
+
 
     const createPo = async () => {
       const b = { ...bill };
@@ -72,10 +84,19 @@ const EPayment = (props) => {
     }
   }
 
+  const onCancelEmailVerification = () => {
+    setStep(1);
+  }
+
+  const onCancelCheckout = () => {
+    setStep(1);
+  }
+
   const pages = [
     { name: "verifyemail", title: "Email Verification", component: EmailVerification, actions: {onCancel: goBack, onVerify: updateContact} },
     { name: "billing", title: module.title, component: module.component, actions: { onCancel: onCancelBilling, onSubmit: checkoutOrder } },
-    { name: "checkout", title: "Checkout Order", component: CheckoutOrder, actions: { onCancel: movePrevious, onSubmit: createPaymentOrder } },
+    { name: "verification", caption: "Email Verification", component: ContactVerification, actions: { movePrevStep: onCancelEmailVerification, moveNextStep: gotoCheckout }},
+    { name: "checkout", title: "Checkout Order", component: CheckoutOrder, actions: { onCancel: onCancelCheckout, onSubmit: createPaymentOrder } },
     { name: "payment", title: "Online Payment", component: OnlinePayment, actions: { onCancel: movePrevious, onSubmit: ()=>{} } }
   ];
 
@@ -83,7 +104,7 @@ const EPayment = (props) => {
   const [error, setError] = useState();
   const [step, setStep] = useState(initialStep);
   const [page, setPage] = useState(pages[initialStep]);
-  const [contact, setContact] = useState(initialContact);
+  // const [contact, setContact] = useState(initialContact);
   const [bill, setBill] = useState();
   const [po, setPo] = useState();
   const [payOptions, setPayOptions] = useState();
@@ -107,6 +128,7 @@ const EPayment = (props) => {
       loading={loading}
       page={page}
       initialStep={cancelStep}
+      emailRequired={true}
     />
 
   );

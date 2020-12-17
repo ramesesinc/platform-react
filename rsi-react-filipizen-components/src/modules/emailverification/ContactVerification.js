@@ -7,7 +7,9 @@ const ContactVerification = ({
   moveNextStep,
   movePrevStep,
   title,
-  visibleWhen=true
+  visibleWhen=true,
+  emailRequired=false,
+  contact={}
 }) => {
   if (!visibleWhen) return null;
 
@@ -17,10 +19,18 @@ const ContactVerification = ({
 
   const onVerifyEmail = (contact) => {
     dispatch({type: "SET_CONTACT", contact});
-    moveNextStep();
+    moveNextStep(contact);
   }
 
-  return <EmailVerification partner={partner} title={title} onVerify={onVerifyEmail} onCancel={movePrevStep} />
+  return <EmailVerification
+    emailRequired={false}
+    partner={partner}
+    title={title}
+    onVerify={onVerifyEmail}
+    onCancel={movePrevStep}
+    emailRequired={emailRequired}
+    contact={contact}
+  />
 };
 
 export default ContactVerification;
