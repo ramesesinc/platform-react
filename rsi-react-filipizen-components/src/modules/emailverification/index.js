@@ -26,9 +26,10 @@ const EmailVerification = ({
   connection="epayment",
   visibleWhen=true,
   history,
-  showName,
+  showName=false,
   module,
   title,
+  subtitle="Email Verification",
   emailRequired,
   contact: initialContact
 }) => {
@@ -104,7 +105,7 @@ const EmailVerification = ({
   return (
     <Card>
       {moduleTitle && <Title>{moduleTitle}</Title>}
-      <Subtitle>Email Verification</Subtitle>
+      <Subtitle>{subtitle}</Subtitle>
       <Spacer />
       <Error msg={error} />
 

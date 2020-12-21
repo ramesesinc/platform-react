@@ -7,8 +7,10 @@ const ContactVerification = ({
   moveNextStep,
   movePrevStep,
   title,
+  subtitle="Email Verification",
   visibleWhen=true,
   emailRequired=false,
+  showName=false,
   contact={}
 }) => {
   if (!visibleWhen) return null;
@@ -26,10 +28,12 @@ const ContactVerification = ({
     emailRequired={false}
     partner={partner}
     title={title}
+    subtitle={subtitle}
     onVerify={onVerifyEmail}
     onCancel={movePrevStep}
     emailRequired={emailRequired}
     contact={contact}
+    showName={showName}
   />
 };
 
