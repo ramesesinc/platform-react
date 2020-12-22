@@ -30,6 +30,7 @@ const UploadButton = ({
     setError(null);
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("fileId", fileId);
     axios
       .post(url, formData, {
         onUploadProgress: (ProgressEvent) => {
@@ -40,6 +41,8 @@ const UploadButton = ({
       .then((res) => {
         const attachment = {
           name: res.data.name,
+          key: res.data.key,
+          location: res.data.location,
           path: res.data.path,
         }
         onUpload(attachment);
