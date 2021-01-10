@@ -3,6 +3,7 @@ import {
   Panel,
   Date,
   Text,
+  MaskedInput,
   Subtitle2,
   isDateAfter,
   isDateBefore
@@ -15,6 +16,7 @@ const PrcCard = ({
   readOnly = false,
   visibleWhen = true,
   disableIdNo = false,
+  editValidity=false,
   onError=()=>{},
   caption="Professional Regulation Commission [PRC]"
 }) => {
@@ -22,6 +24,7 @@ const PrcCard = ({
   if (!visibleWhen) return null;
   const isReadOnly = readOnly || !editable;
   const isReadOnlyIdNo = isReadOnly || disableIdNo;
+  const isReadOnlyValidity = editValidity ? false : isReadOnly;
 
   const [errors, setErrors] = useState({});
   const [dtIssued, setDtIssued] = useState(initialDtIssued);
@@ -61,10 +64,10 @@ const PrcCard = ({
   return (
     <Panel>
       {caption && <Subtitle2>{caption}</Subtitle2>}
-      <Text name={`${name}.idno`} required={true} caption="ID No." readOnly={isReadOnlyIdNo} />
+      <MaskedInput name={`${name}.idno`} required={true} caption="ID No." readOnly={isReadOnlyIdNo} autoFocus={true} />
       <Text name={`${name}.placeissued`} required={true} caption="Place Issued" readOnly={isReadOnly} />
       <Date name={`${name}.dtissued`} required={true} caption="Date Issued" defaultValue={null} readOnly={isReadOnly} helperText="mm/dd/yyyy" onBlur={validateDateIssued} error={errors.dtissued} helperText={errors.dtissued} disableFuture={true} />
-      <Date name={`${name}.dtvalid`} required={true} caption="Validity Date" defaultValue={null} readOnly={isReadOnly}  helperText="mm/dd/yyyy" onBlur={validateDateValidity} error={errors.dtvalid} helperText={errors.dtvalid} disabled={!dtIssued} disablePast={true} />
+      <Date name={`${name}.dtvalid`} required={true} caption="Validity Date" defaultValue={null} readOnly={isReadOnlyValidity}  helperText="mm/dd/yyyy" onBlur={validateDateValidity} error={errors.dtvalid} helperText={errors.dtvalid} disabled={!dtIssued} disablePast={true} />
     </Panel>
   );
 };

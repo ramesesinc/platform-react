@@ -32,6 +32,7 @@ export { default as LinkIcon } from "./LinkIcon";
 export { default as List } from "./List";
 export { default as Loading } from "./Loading";
 export { default as Lookup } from "./Lookup";
+export { default as MaskedInput } from "./MaskedInput";
 export { default as Modal } from "./Modal";
 export { default as Mobileno } from "./Mobileno";
 export { default as MsgBox } from "./MsgBox";
