@@ -60,7 +60,10 @@ const MaskedInput = ({
         unmaskedValue = unmaskedValue.replace(new RegExp(msk, "gi"), "");
       }
     })
-    const newValue = padLeft(unmaskedValue, len - unmaskedValue.length, "0");
+    let newValue = unmaskedValue;
+    if (unmaskedValue.trim().length > 0) {
+      newValue = padLeft(unmaskedValue, len - unmaskedValue.length, "0");
+    }
     fieldProps.onChange({target: {name, value: newValue}})
   }
 
