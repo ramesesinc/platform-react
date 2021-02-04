@@ -11,6 +11,7 @@ const BarangayList = ({ orgcode, name, caption, barangays, ...rest }) => {
       {...rest}
       items={barangayList}
       expr={(item) => item.name}
+      renderValue={(item) => item.name}
     />
   );
 };

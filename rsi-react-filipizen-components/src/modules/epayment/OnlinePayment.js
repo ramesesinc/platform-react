@@ -19,6 +19,7 @@ const OnlinePayment = ({po, error: externalError, payOptions, partner}) => {
   const [loading, setLoading] = useState(false);
   const [processingPayment, setProcessingPayment] = useState(false);
   const [error, setError] = useState();
+  const [showError, setShowError] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [openAgreeMsg, setOpenAgreeMsg] = useState(false);
   const [paypartner, setPaypartner] = useState({});
@@ -41,12 +42,17 @@ const OnlinePayment = ({po, error: externalError, payOptions, partner}) => {
       const svc = Service.lookup("CloudPaymentService", "epayment")
       svc.invoke("getPayPartner", {objid: po.objid, payoption: option.objid}, (err, paypartner) => {
         if (err) {
-          if (/syntax/ig.test(err)) {
-            setError("Could not contact payment partner. Please try again.");
+          if (typeof(err) === "string") {
+            if (/syntax/ig.test(err)) {
+              setError("Could not contact payment partner. Please try again.");
+            } else {
+              setError(err)
+            }
           } else {
-            setError(err)
+            setError(err.errormsg);
           }
           setProcessingPayment(false);
+          setShowError(true);
         } else {
           setPaypartner(paypartner);
         }
@@ -69,6 +75,16 @@ const OnlinePayment = ({po, error: externalError, payOptions, partner}) => {
         open={openAgreeMsg}
         onAccept={() => setOpenAgreeMsg(false)}
       />
+      <MsgBox
+        title="Payment Processing Error"
+        msg="An error occurred while processing your request. Correct the problem and resubmit your request or kindly contact the LGU for assistance"
+        open={showError}
+        onAccept={() => setShowError(false)}
+      >
+        <ul>
+          <li>{error}</li>
+        </ul>
+      </MsgBox>
       <Modal open={processingPayment} showActions={false}>
         <Panel center>
           <Spacer />
@@ -123,7 +139,7 @@ const OnlinePayment = ({po, error: externalError, payOptions, partner}) => {
           </Panel>
           {!loading && agreed &&
             <React.Fragment>
-              <Error msg={error || externalError} />
+              <Error msg={externalError} />
               <Spacer />
               <Label>Click to choose Type of Payment:</Label>
               <Group row>

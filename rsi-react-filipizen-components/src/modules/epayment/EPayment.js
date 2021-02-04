@@ -46,10 +46,6 @@ const EPayment = (props) => {
   const createPaymentOrder = (payee) => {
     setLoading(true);
     setError(null);
-
-    console.log("contact", contact);
-
-
     const createPo = async () => {
       const b = { ...bill };
       b.paidby = payee.paidby;
@@ -104,7 +100,6 @@ const EPayment = (props) => {
   const [error, setError] = useState();
   const [step, setStep] = useState(initialStep);
   const [page, setPage] = useState(pages[initialStep]);
-  // const [contact, setContact] = useState(initialContact);
   const [bill, setBill] = useState();
   const [po, setPo] = useState();
   const [payOptions, setPayOptions] = useState();

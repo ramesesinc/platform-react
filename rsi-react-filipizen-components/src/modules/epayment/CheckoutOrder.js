@@ -11,7 +11,6 @@ import {
   Text,
   ActionBar,
   currencyFormat,
-  Error,
   MsgBox
 } from "rsi-react-web-components";
 

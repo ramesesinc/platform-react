@@ -39,7 +39,7 @@ const IdEntry = ({
 
   useEffect(() => {
     setDtIssued(initialDtIssued);
-  }, initialDtIssued)
+  }, [initialDtIssued])
 
   const validateDateIssued = (e) => {
     setErrors({});
@@ -78,6 +78,7 @@ const IdEntry = ({
           items={idTypes}
           caption="ID Type"
           expr={(item) => item.title}
+          renderValue={(item) => item.title}
           required={true}
         />
       }

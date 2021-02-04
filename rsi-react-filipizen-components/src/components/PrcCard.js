@@ -31,7 +31,7 @@ const PrcCard = ({
 
   useEffect(() => {
     setDtIssued(initialDtIssued);
-  }, initialDtIssued)
+  }, [initialDtIssued])
 
   const validateDateIssued = (e) => {
     setErrors({});

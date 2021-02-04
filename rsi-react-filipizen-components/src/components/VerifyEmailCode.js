@@ -44,7 +44,6 @@ const VerifyEmailCode = ({
 
   const verifyCode = () => {
     setError(null);
-    console.log(hiddenCode + "89");
     if (hiddenCode !== keycode) {
       setError("Invalid code");
     } else {

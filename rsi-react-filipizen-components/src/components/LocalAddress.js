@@ -1,5 +1,5 @@
 import React from "react";
-import { Panel, Text, Combobox, isVisible } from "rsi-react-web-components";
+import { Panel, Text } from "rsi-react-web-components";
 import BarangayList from "./BarangayList"
 
 const LocalAddress = ({
