@@ -19,6 +19,7 @@ const Combobox = ({
   items,
   caption,
   expr,
+  fullWidth=true,
   ...rest
 }) => {
   const ctx = useContext();
@@ -26,7 +27,7 @@ const Combobox = ({
   const classes = useStyles();
 
   return (
-    <FormControl className={classes.formControl} fullWidth disabled={!editable} >
+    <FormControl className={classes.formControl} fullWidth={fullWidth} disabled={!editable} >
       <InputLabel required={required} id="select-id">{caption}</InputLabel>
       <Select
         labelId="select-id"
