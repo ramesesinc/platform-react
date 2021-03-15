@@ -10,22 +10,24 @@ import {
   BackLink
 } from "rsi-react-web-components";
 
-
 const VerifyEmailCode = ({
   partner,
   hiddenCode,
   email,
   onCancel,
   onVerified,
-  onResendCode=()=>{},
-  connection="epayment"
+  onResendCode = () => {},
+  connection = "epayment"
 }) => {
   const [keycode, setKeycode] = useState();
   const [error, setError] = useState();
   const [isResendCode, setIsResendCode] = useState(false);
 
   const verifyEmail = async () => {
-    const emailSvc = Service.lookupAsync(`${partner.id}:VerifyEmailService`, connection);
+    const emailSvc = Service.lookupAsync(
+      `${partner.id}:VerifyEmailService`,
+      connection
+    );
     return emailSvc.invoke("verifyEmail", { email });
   };
 
@@ -40,7 +42,7 @@ const VerifyEmailCode = ({
         setError(err);
         setIsResendCode(false);
       });
-  }
+  };
 
   const verifyCode = () => {
     setError(null);
@@ -53,7 +55,8 @@ const VerifyEmailCode = ({
 
   return (
     <Panel>
-      <MsgBox open={isResendCode}
+      <MsgBox
+        open={isResendCode}
         title="Email Verification"
         msg="Resend verification code?"
         onAccept={resendCode}
@@ -74,7 +77,11 @@ const VerifyEmailCode = ({
             error={error}
             helperText={error}
           />
-          <Button label="Resend Code" action={()=>setIsResendCode(true)} variant="text" />
+          <Button
+            label="Resend Code"
+            action={() => setIsResendCode(true)}
+            variant="text"
+          />
         </Panel>
         <ActionBar>
           <BackLink caption="Cancel" action={onCancel} />
@@ -86,8 +93,7 @@ const VerifyEmailCode = ({
 };
 
 const styles = {
-  container: {
-  },
-}
+  container: {}
+};
 
 export default VerifyEmailCode;

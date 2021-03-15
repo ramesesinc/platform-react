@@ -6,14 +6,23 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogActions from "@material-ui/core/DialogActions";
 import Button from "./Button";
 
-const MsgBox = ({ open, type = "alert", msg, acceptCaption="OK", onAccept, onCancel, children, ...rest }) => {
-  const title = rest.title || (type === "alert" ? "Information" : "Confirmation")
+const MsgBox = ({
+  open,
+  title,
+  type = "alert",
+  msg,
+  acceptCaption = "OK",
+  onAccept,
+  onCancel,
+  children
+}) => {
+  const lookupTitle =
+    title || (type === "alert" ? "InformationXX" : "Confirmation");
   return (
     <Dialog open={open}>
-      {title && <DialogTitle>{title}</DialogTitle>}
+      {title && <DialogTitle>{lookupTitle}</DialogTitle>}
       <DialogContent>
-        <DialogContentText>{msg}</DialogContentText>
-        {children}
+        {children ? children : <DialogContentText>{msg}</DialogContentText>}
       </DialogContent>
       <DialogActions>
         {type !== "alert" && (
