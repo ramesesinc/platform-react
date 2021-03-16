@@ -13,12 +13,13 @@ import {
   currencyFormat,
   Subtitle,
   Spacer,
+  Service,
 } from "rsi-react-web-components";
 
 const EPaymentSuccess = (props) => {
   const [payment, setPayment] = useState({});
-  const { partner } = props;
-
+  const [partner, setPartner] = useState(props.partner);
+  
   useEffect(() => {
     const payment = {
       orgcode: getUrlParameter(props.location, "orgcode"),
@@ -31,11 +32,18 @@ const EPaymentSuccess = (props) => {
       email: getUrlParameter(props.location, "email"),
     }
     setPayment(payment);
+
+    const svc = Service.lookup("CloudPartnerService", "partner");
+    svc.invoke("findById", { id: payment.orgcode }, (err, partner) => {
+      if (!err) {
+        setPartner(partner);
+      }
+    })
   }, []);
 
   const onClose = () => {
     if (partner && partner.name) {
-      props.history.replace(`/partner/${partner.name}/services`, {partner});
+      props.history.replace(`/partner/${partner.group.name}_${partner.name}/services`, {partner});
     } else {
       props.history.replace("/partners");
     }
@@ -72,7 +80,7 @@ const EPaymentSuccess = (props) => {
             </Panel>
           </FormPanel>
           <Label style={{ ...styles.text, ...{ maxWidth: 300 } }}>
-            Your e-receipt and tickets will be sent to your email at {payment.email}
+            {`Your e-receipt and tickets will be sent to your email at ${payment.email}`}
           </Label>
           <Label labelStyle={styles.text}>
             Thank you for using this service

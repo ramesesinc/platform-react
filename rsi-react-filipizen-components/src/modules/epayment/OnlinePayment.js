@@ -15,7 +15,13 @@ import {
   Loading
 } from "rsi-react-web-components";
 
-const OnlinePayment = ({po, error: externalError, payOptions, partner}) => {
+import PaymayaCheckout from "../paypartner/PaymayaCheckout";
+
+const paypartnerCheckout = {
+  paymaya: { component: PaymayaCheckout }
+};
+
+const OnlinePayment = ({ po, error: externalError, payOptions, partner }) => {
   const [loading, setLoading] = useState(false);
   const [processingPayment, setProcessingPayment] = useState(false);
   const [error, setError] = useState();
@@ -23,6 +29,8 @@ const OnlinePayment = ({po, error: externalError, payOptions, partner}) => {
   const [agreed, setAgreed] = useState(false);
   const [openAgreeMsg, setOpenAgreeMsg] = useState(false);
   const [paypartner, setPaypartner] = useState({});
+  const [mode, setMode] = useState("payment");
+  const [option, setOption] = useState({});
 
   const postForm = useRef(null);
 
@@ -31,22 +39,25 @@ const OnlinePayment = ({po, error: externalError, payOptions, partner}) => {
     if (postForm && paypartner.formaction) {
       postForm.submit();
     }
-  }, [paypartner])
+  }, [paypartner]);
 
-  const onSelectPartner = (option) => {
-    if (!agreed) {
-      setOpenAgreeMsg(true);
-    } else {
-      setError(null)
-      setProcessingPayment(true)
-      const svc = Service.lookup("CloudPaymentService", "epayment")
-      svc.invoke("getPayPartner", {objid: po.objid, payoption: option.objid}, (err, paypartner) => {
+  const processPayment = (option) => {
+    setError(null);
+    setProcessingPayment(true);
+    
+    const svc = Service.lookup("CloudPaymentService", "epayment");
+    const params = { 
+      objid: po.objid, 
+      payoption: option.objid, 
+      checkout: option.checkout,
+    }
+    svc.invoke("getPayPartner", params , (err, paypartner) => {
         if (err) {
-          if (typeof(err) === "string") {
-            if (/syntax/ig.test(err)) {
+          if (typeof err === "string") {
+            if (/syntax/gi.test(err)) {
               setError("Could not contact payment partner. Please try again.");
             } else {
-              setError(err)
+              setError(err);
             }
           } else {
             setError(err.errormsg);
@@ -56,15 +67,50 @@ const OnlinePayment = ({po, error: externalError, payOptions, partner}) => {
         } else {
           setPaypartner(paypartner);
         }
-      })
+      }
+    );
+  };
+
+  const isPayPartnerCheckoutRequired = (option) => {
+    const checkout = paypartnerCheckout[option.paypartnerid.toLowerCase()];
+    return typeof checkout !== "undefined";
+  };
+  
+  const onSelectPartner = (option) => {
+    if (!agreed) {
+      setOpenAgreeMsg(true);
+      return;
+    }
+
+    if (isPayPartnerCheckoutRequired(option)) {
+      setMode("checkout");
+      setOption(option);
+    } else {
+      processPayment(option);
     }
   };
 
+  if (mode === "checkout") {
+    const cancelCheckout = () => {
+      setMode("payment");
+    };
+
+    const onCheckout = (checkout) => {
+      setMode("payment");
+      processPayment({...option, checkout });
+    };
+
+    const CheckoutPage = paypartnerCheckout[option.paypartnerid.toLowerCase()].component;
+    return (
+      <CheckoutPage po={po} onCancel={cancelCheckout} onCheckout={onCheckout} />
+    );
+  }
+
   let fields = [];
   if (paypartner.params) {
-    Object.keys(paypartner.params).forEach(key => {
+    Object.keys(paypartner.params).forEach((key) => {
       fields.push([key, paypartner.params[key]]);
-    })
+    });
   }
 
   return (
@@ -88,78 +134,74 @@ const OnlinePayment = ({po, error: externalError, payOptions, partner}) => {
       <Modal open={processingPayment} showActions={false}>
         <Panel center>
           <Spacer />
-          <label style={{fontSize: 20, fontWeight: 800}}>Contacting Partner</label>
-          <label style={{fontSize: 14, opacity: 0.75}}>Kindly wait while we send your payment request to our partner.</label>
-          <Loading showMessage={false}/>
+          <label style={{ fontSize: 20, fontWeight: 800 }}>
+            Contacting Partner
+          </label>
+          <label style={{ fontSize: 14, opacity: 0.75 }}>
+            Kindly wait while we send your payment request to our partner.
+          </label>
+          <Loading showMessage={false} />
           <Spacer />
         </Panel>
       </Modal>
       <Spacer />
       <Panel center>
-          <Panel style={styles.poContainer}>
-            <Panel center>
-              <Title color="green">Your Order</Title>
-            </Panel>
-            <Spacer />
-            <Panel>
-              <Label context={partner} caption="Agency" expr="title" />
-              <Label context={po} caption="Reference No." expr="objid" />
-              <Label
-                context={po}
-                caption="Transaction Type"
-                expr="txntypename"
-              />
-              <Label context={po} caption="Particulars" expr="particulars" />
-              <Label context={po} caption="Paid By" expr="paidby" />
-              <Spacer height={10} />
-              <Label caption="Amount">{po && currencyFormat(po.amount)}</Label>
-              <Label caption="Web Service Fee">
-                {po && currencyFormat(po.webfee)}
-              </Label>
-              <Label caption="Total">{po && currencyFormat(po.total)}</Label>
-            </Panel>
-            <Group row style={{ marginTop: 10 }}>
-              <Label style={{ color: "blue", paddingRight: 5 }}>Note:</Label>
-              <Label style={{ color: "red" }}>
-                {po && `Pay on or before ${po.expirydate}`}
-              </Label>
-            </Group>
-            <Checkbox
-              checked={agreed}
-              onChange={setAgreed}
-              style={{ marginRight: 5 }}
-              caption={
-                <span style={{ fontSize: 14, paddingTop: 8 }}>
-                  I acknowledge and agree to the Terms and Conditions of this
-                  e-payment facility.
-                </span>
-              }
-            />
-            <Spacer height={10} />
+        <Panel style={styles.poContainer}>
+          <Panel center>
+            <Title color="green">Your Order</Title>
           </Panel>
-          {!loading && agreed &&
-            <React.Fragment>
-              <Error msg={externalError} />
-              <Spacer />
-              <Label>Click to choose Type of Payment:</Label>
-              <Group row>
-                {payOptions &&
-                  payOptions.map((option) => {
-                    return (
-                      <button type="submit" style={styles.payButton} onClick={() => onSelectPartner(option)}>
-                        <input type="hidden" name="refno" value={po.objid} />
-                        <input type="hidden" name="payoption" value={option.objid} />
-                        <Image
-                          src={`/assets/${option.paypartnerid.toLowerCase()}.png`}
-                          width="150"
-                          style={{ cursor: "pointer" }}
-                        />
-                      </button>
-                    );
-                  })}
-              </Group>
-            </React.Fragment>
-          }
+          <Spacer />
+          <Panel>
+            <Label context={partner} caption="Agency" expr="title" />
+            <Label context={po} caption="Reference No." expr="objid" />
+            <Label context={po} caption="Transaction Type" expr="txntypename" />
+            <Label context={po} caption="Particulars" expr="particulars" />
+            <Label context={po} caption="Paid By" expr="paidby" />
+            <Spacer height={10} />
+            <Label caption="Amount">{po && currencyFormat(po.amount)}</Label>
+          </Panel>
+          <Group row style={{ marginTop: 10 }}>
+            <Label style={{ color: "blue", paddingRight: 5 }}>Note:</Label>
+            <Label style={{ color: "red" }}>
+              {po && `Pay on or before ${po.expirydate}`}
+            </Label>
+          </Group>
+          <Checkbox
+            checked={agreed}
+            onChange={setAgreed}
+            style={{ marginRight: 5 }}
+            caption={
+              <span style={{ fontSize: 14, paddingTop: 8 }}>
+                I acknowledge and agree to the Terms and Conditions of this
+                e-payment facility.
+              </span>
+            }
+          />
+          <Spacer height={10} />
+        </Panel>
+        {!loading && agreed && (
+          <React.Fragment>
+            <Error msg={externalError} />
+            <Spacer />
+            <Label>Click to choose Type of Payment:</Label>
+            <Group row>
+              {payOptions &&
+                payOptions.map((option) => {
+                  return (
+                    <button type="submit" style={styles.payButton} onClick={() => onSelectPartner(option)}>
+                      <input type="hidden" name="refno" value={po.objid} />
+                      <input type="hidden" name="payoption" value={option.objid} />
+                      <Image
+                        src={`/assets/${option.paypartnerid.toLowerCase()}.png`}
+                        width="150"
+                        style={{ cursor: "pointer" }}
+                      />
+                    </button>
+                  );
+                })}
+            </Group>
+          </React.Fragment>
+        )}
       </Panel>
       {paypartner.isredirect === true ? (
         <form id="postform" method="GET" action={paypartner.formaction} ref={postForm}>
@@ -167,12 +209,14 @@ const OnlinePayment = ({po, error: externalError, payOptions, partner}) => {
         </form>
       ) : (
         <form id="postform" method="POST" action={paypartner.formaction} ref={postForm}>
-            <React.Fragment>
-              {fields.map(field => {
-                return <input key={field[0]} type="hidden" name={field[0]} value={field[1]} />
-              })}
-              <input type="hidden" name="orgcode" value="${po.orgcode}" />
-            </React.Fragment>
+          <React.Fragment>
+            {fields.map((field) => {
+              return (
+                <input key={field[0]} type="hidden" name={field[0]} value={field[1]} />
+              );
+            })}
+            <input type="hidden" name="orgcode" value="${po.orgcode}" />
+          </React.Fragment>
         </form>
       )}
     </React.Fragment>
@@ -186,12 +230,12 @@ const styles = {
     border: "1px solid #aaa",
     borderRadius: 5,
     padding: 15,
-    maxWidth: 450,
+    maxWidth: 450
   },
   payButton: {
     border: "none",
     background: "none"
-  },
+  }
 };
 
 export default OnlinePayment;
