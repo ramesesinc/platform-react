@@ -80,6 +80,7 @@ const styles = {
     paymentTypeContainer: {
         display: "flex",
         flexDirection: "column",
+        width: "400px",
     },
     paymentType: {
         paddingLeft: 20,
