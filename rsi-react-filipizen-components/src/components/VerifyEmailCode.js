@@ -67,7 +67,7 @@ const VerifyEmailCode = ({
         <Panel style={styles.container}>
           <Text
             label="Key"
-            placeholder="Enter code sent to your email"
+            placeholder="Enter OTP"
             name="keycode"
             value={keycode}
             onChange={setKeycode}

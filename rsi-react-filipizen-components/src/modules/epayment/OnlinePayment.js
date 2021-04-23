@@ -16,9 +16,11 @@ import {
 } from "rsi-react-web-components";
 
 import PaymayaCheckout from "../paypartner/PaymayaCheckout";
+import GCashCheckout from "../paypartner/GCashCheckout";
 
 const paypartnerCheckout = {
-  paymaya: { component: PaymayaCheckout }
+  paymaya: { component: PaymayaCheckout },
+  gcash: { component: GCashCheckout }
 };
 
 const OnlinePayment = ({ po, error: externalError, payOptions, partner }) => {
@@ -128,7 +130,7 @@ const OnlinePayment = ({ po, error: externalError, payOptions, partner }) => {
         onAccept={() => setShowError(false)}
       >
         <ul>
-          <li>{error}</li>
+          <li>{/timeout/ig.test(error) ? 'Could not contact payment partner. Please try again.' : error}</li>
         </ul>
       </MsgBox>
       <Modal open={processingPayment} showActions={false}>
